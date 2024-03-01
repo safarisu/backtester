@@ -17,7 +17,7 @@ def backtester_demo(ticker, strategy, initial_capital=100000, interval='1d', per
     portfolio_values = backtester.get_portfolio_values()
     # To-do integrate charting with Backtester
     # Plot chart with buy and sell signals
-    ma_chart(equity_data, trades, ticker, interval)
+    ma_chart(equity_data, trades, ticker, interval, period)
 
     # Plot portfolio's equity curve
     equity_curve(portfolio_values)

@@ -2,23 +2,54 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import dates as mdates
 from adjustText import adjust_text
-from matplotlib.collections import PathCollection
+import matplotlib.colors as mcolors
+from matplotlib.patches import Polygon
+# from matplotlib.collections import PathCollection
 
 plt.style.use('dark_background')
 plt.rcParams['grid.color'] = '#333333'
 plt.rcParams.update({'figure.autolayout': True})
 plt.rcParams['axes.facecolor'] = '#0E0E10'
-figsize=(15, 9)
+figsize=(14, 7)
 
-def ma_chart(data, trades, ticker, interval):
+
+def ma_chart(data, trades, ticker, interval, period):
     plt.figure(figsize=figsize)
 
     # Plot price line
-    plt.plot(data.index, data['Close'], label='Close Price', color='royalblue')
+    line, = plt.plot(data.index, data['Close'], label='Close Price', color='#0059CF')
+
+    ax = plt.gca()
     # plt.xticks(data.index, data['Datetime'])
 
+    fill_color = '#0059CF'
+
+    zorder = line.get_zorder()
+    alpha = line.get_alpha()
+    alpha = 1.0 if alpha is None else alpha
+
+    z = np.empty((100, 1, 4), dtype=float)
+    rgb = mcolors.colorConverter.to_rgb(fill_color)
+    z[:, :, :3] = rgb
+    z[:, :, -1] = np.linspace(0, alpha, 100)[:, None]
+
+    x = np.arange(len(data))
+    y = data['Close']
+    xmin, xmax, ymin, ymax = x.min(), x.max(), y.min(), y.max()
+    im = ax.imshow(z, aspect='auto', extent=[xmin, xmax, ymin, ymax],
+                   origin='lower', zorder=zorder, alpha=0.3)
+
+    xy = np.column_stack([x, y])
+    xy = np.vstack([[xmin, ymin], xy, [xmax, ymin], [xmin, ymin]])
+    clip_path = Polygon(xy, facecolor='none', edgecolor='none', closed=True)
+    ax.add_patch(clip_path)
+    im.set_clip_path(clip_path)
+
+    ax.autoscale(True)
+    # plt.xlim(data.index[0], data.index[-1])
+    # plt.ylim(data['Close'].min(), data['Close'].max())
+
     # Set the locator for the x-axis ticker
-    ax = plt.gca()
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
 
     # Plot short and long moving averages
@@ -48,7 +79,7 @@ def ma_chart(data, trades, ticker, interval):
         if trade[0].startswith('Enter'):
             texts.append(plt.text(trade[1], trade[2], trade[0], ha='right', va='bottom'))
 
-    plt.title(f'Ticker: {ticker} | Interval: {interval}')
+    plt.title(f'Ticker: {ticker} | Interval: {interval} | Period: {period}')
     plt.xlabel('Date')
     plt.ylabel('Price')
     plt.legend()
