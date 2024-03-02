@@ -6,11 +6,17 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Polygon
 # from matplotlib.collections import PathCollection
 
-plt.style.use('dark_background')
+#plt.style.use('dark_background')
 plt.rcParams['grid.color'] = '#333333'
 plt.rcParams.update({'figure.autolayout': True})
 plt.rcParams['axes.facecolor'] = '#0E0E10'
 plt.rcParams['figure.facecolor'] = '#0E0E10'
+plt.rcParams['text.color'] = 'white'
+plt.rcParams['axes.edgecolor'] = 'white'
+plt.rcParams['xtick.color'] = 'white'
+plt.rcParams['ytick.color'] = 'white'
+plt.rcParams['legend.facecolor'] = '#0E0E10'  # Set legend face color to match background
+plt.rcParams['axes.labelcolor'] = 'white'  # Set axes labels color to white
 figsize=(14, 7)
 
 
@@ -96,6 +102,7 @@ def ma_chart(data, trades, ticker, interval, period):
     # Adjust the positions of annotations to avoid overlap
     adjust_text(texts, arrowprops=dict(arrowstyle='->', color='white'), zorder=5, y=data['Close'],
                 force_static=(0, 5), force_text=(0.5, 0.5), min_arrow_len=10)
+    plt.gcf().set_facecolor('#0E0E10')
     plt.show()
 
 
@@ -116,6 +123,7 @@ def equity_curve(portfolio_values, title='Equity Curve'):
     plt.legend()
     plt.grid(True)
     plt.locator_params("y", nbins=15)
+    plt.gcf().set_facecolor('#0E0E10')
     plt.show()
 
 
