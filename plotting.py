@@ -14,17 +14,8 @@ plt.rcParams['figure.facecolor'] = '#0E0E10'
 figsize=(14, 7)
 
 
-def ma_chart(data, trades, ticker, interval, period):
-    fig = plt.figure(figsize=figsize)
-    ax = plt.gca()
-
-    # Plot price line
-    line, = plt.plot(data.index, data['Close'], label='Close Price', color='#0059CF')
-
-    # plt.xticks(data.index, data['Datetime'])
-
-    fill_color = '#0059CF'
-
+def draw_gradient(line, y, ax):
+    fill_color = line.get_color()
     zorder = line.get_zorder()
     alpha = line.get_alpha()
     alpha = 1.0 if alpha is None else alpha
@@ -34,8 +25,8 @@ def ma_chart(data, trades, ticker, interval, period):
     z[:, :, :3] = rgb
     z[:, :, -1] = np.linspace(0, alpha, 100)[:, None]
 
-    x = np.arange(len(data))
-    y = data['Close']
+    x = np.arange(len(y))
+    y = y
     xmin, xmax, ymin, ymax = x.min(), x.max(), y.min(), y.max()
     im = ax.imshow(z, aspect='auto', extent=[xmin, xmax, ymin, ymax],
                    origin='lower', zorder=zorder, alpha=0.3, cmap='Blues')
@@ -46,7 +37,21 @@ def ma_chart(data, trades, ticker, interval, period):
     ax.add_patch(clip_path)
     im.set_clip_path(clip_path)
 
-    ax.autoscale(True)
+    # Adjust the y-axis limits to expand the plot vertically
+    ax.set_ylim(bottom=min(y) - 0.1 * (max(y) - min(y)), top=max(y) + 0.1 * (max(y) - min(y)))
+
+    #ax.autoscale(True)
+
+def ma_chart(data, trades, ticker, interval, period):
+    fig = plt.figure(figsize=figsize)
+    ax = plt.gca()
+
+    # Plot price line
+    line, = plt.plot(data.index, data['Close'], label='Close Price', color='#0059CF')
+
+    # plt.xticks(data.index, data['Datetime'])
+
+    draw_gradient(line, data['Close'], ax)
 
     # plt.xlim(data.index[0], data.index[-1])
     # plt.ylim(data['Close'].min(), data['Close'].max())
@@ -101,7 +106,10 @@ def equity_curve(portfolio_values, title='Equity Curve'):
     ax = plt.gca()
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
 
-    plt.plot(portfolio_values['date'], portfolio_values['value'], label='Equity Curve', color='purple')
+    line, = plt.plot(portfolio_values['date'], portfolio_values['value'], label='Equity Curve', color='purple')
+
+    draw_gradient(line, portfolio_values['value'], ax)
+
     plt.title(title)
     plt.xlabel('Date')
     plt.ylabel('Portfolio Value')

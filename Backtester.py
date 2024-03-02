@@ -104,8 +104,13 @@ class Backtester:
         report_str += f"Final portfolio value: {self.get_final_value():.2f}\n"
         report_str += f"Gross Profit: {self.get_profit():.2%}\n"
         report_str += f"Buy-n-hold return {self.get_buy_n_hold():.2%}\n"
-        report_str += f"Two-way trades executed: {len(self.get_portfolio_values()) - 1}\n"
-        # to do average profit/loss, number of profitable/losing trades
+
+        portfolio_values = self.get_portfolio_values()
+        report_str += f"Two-way trades executed: {len(portfolio_values) - 1}\n"
+
+        average_pnl = portfolio_values['pnl'].mean()
+        report_str += f"Average PnL: {average_pnl:.2f}\n"
+
         report_str += "************\n"
 
         return report_str
