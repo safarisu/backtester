@@ -40,7 +40,7 @@ Average PnL: 2012.20
 ```
 
 Moving Average Plot with trade signals:
-![nqf_1d_3y_sma.png](charts%2Fnqf_1d_3y_sma.png)
+![eurusd_1d_3y_ema.png](charts%2Feurusd_1d_3y_ema.png)
 
 Equity curve:!
-![nqf_1d_3y_sma_equity_curve.png](charts%2Fnqf_1d_3y_sma_equity_curve.png)
+![eurusd_1d_3y_ema_equity_curve.png](charts%2Feurusd_1d_3y_ema_equity_curve.png)
