@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def moving_average(data: pd.DataFrame, window: int, ma_func):
-    return ma_func(data['Close'], window).mean()
+    return ma_func(data['Close'], window, min_periods=window).mean()
 
 
 class MACrossStrategy:
@@ -19,10 +19,10 @@ class MACrossStrategy:
         data['short_ma'] = moving_average(data, self.short_window, self.ma_func)
         data['long_ma'] = moving_average(data, self.long_window, self.ma_func)
 
-        if data['short_ma'].iloc[i] > data['long_ma'].iloc[i] and data['short_ma'].iloc[i - 1] <= data['long_ma'].iloc[i - 1]:
+        if data['short_ma'].iloc[i] > data['long_ma'].iloc[i] and (data['short_ma'].iloc[i - 1] <= data['long_ma'].iloc[i - 1] or i == self.long_window):
             data.loc[data.index[i], 'signal'] = 'Buy'
             return 'Enter Long'
-        elif data['short_ma'].iloc[i] < data['long_ma'].iloc[i] and data['short_ma'].iloc[i - 1] >= data['long_ma'].iloc[i - 1]:
+        elif data['short_ma'].iloc[i] < data['long_ma'].iloc[i] and (data['short_ma'].iloc[i - 1] >= data['long_ma'].iloc[i - 1] or i == self.long_window):
             data.loc[data.index[i], 'signal'] = 'Sell'
             return 'Enter Short'
         else:

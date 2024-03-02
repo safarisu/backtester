@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class Backtester:
-    def __init__(self, equity_data, initial_capital=10000, strategy=None, short_selling=True):
+    def __init__(self, equity_data, initial_capital=10000, strategy=None, short_selling=True, position_sizing="percent", position_size='max'):
         self.initial_capital = initial_capital
         self.strategy = strategy
         self.initial_capital = initial_capital
@@ -12,28 +12,47 @@ class Backtester:
         self.portfolio_values = []
         self.short_selling = short_selling
         self.equity_data = equity_data
+        self.position_sizing = position_sizing
+        self.position_size = position_size
 
     def execute_trade(self, trade_type, price, date):
+
+        contract_size = 0
+        if self.position_sizing == "percent":
+            if self.position_size == 'max':
+                contract_size = self.capital / price
+            else:
+                contract_size = self.position_size * self.capital / price
+        elif self.position_sizing == "fixed":
+            if self.position_size == 'max':
+                contract_size = int(self.capital / price)
+            else:
+                contract_size = self.position_size
+
         if trade_type == 'Enter Long':
-            self.position += self.capital / price
-            self.capital = 0
+            self.position += contract_size
+            self.capital -= contract_size * price
         elif trade_type == 'Enter Short':
-            self.position -= self.capital / price
-            self.capital *= 2
+            self.position -= contract_size
+            self.capital += contract_size * price
         elif trade_type.startswith('Exit'):
             self.capital += self.position * price
             self.position = 0
 
-        self.trades.append((trade_type, date, price))
+        self.trades.append((trade_type, date, price, self.position))
 
         # Realize PnL of the trade on exit
         if trade_type.startswith('Exit'):
-            self.portfolio_values.append({'value': self.capital + self.position * price, 'date': date})
+            value = self.capital + self.position * price
+            pnl = value - self.portfolio_values[-1]['value']
+            pnl_percent = pnl/self.portfolio_values[-1]['value']
+            self.portfolio_values.append({'value': self.capital + self.position * price, 'date': date, 'pnl': pnl,
+                                          'pnl_percent': pnl_percent, 'comment': trade_type})
 
     def backtest(self):
         data = self.equity_data
         # Initialize portfolio
-        self.portfolio_values.append({'value': self.capital, 'date': data.index[0]})
+        self.portfolio_values.append({'value': self.capital, 'date': data.index[0], 'comment': 'Initial Investment'})
 
         for i in range(len(data)):
             order_type = self.strategy.generate_order(data, i)

@@ -10,16 +10,17 @@ plt.style.use('dark_background')
 plt.rcParams['grid.color'] = '#333333'
 plt.rcParams.update({'figure.autolayout': True})
 plt.rcParams['axes.facecolor'] = '#0E0E10'
+plt.rcParams['figure.facecolor'] = '#0E0E10'
 figsize=(14, 7)
 
 
 def ma_chart(data, trades, ticker, interval, period):
-    plt.figure(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
+    ax = plt.gca()
 
     # Plot price line
     line, = plt.plot(data.index, data['Close'], label='Close Price', color='#0059CF')
 
-    ax = plt.gca()
     # plt.xticks(data.index, data['Datetime'])
 
     fill_color = '#0059CF'
@@ -37,7 +38,7 @@ def ma_chart(data, trades, ticker, interval, period):
     y = data['Close']
     xmin, xmax, ymin, ymax = x.min(), x.max(), y.min(), y.max()
     im = ax.imshow(z, aspect='auto', extent=[xmin, xmax, ymin, ymax],
-                   origin='lower', zorder=zorder, alpha=0.3)
+                   origin='lower', zorder=zorder, alpha=0.3, cmap='Blues')
 
     xy = np.column_stack([x, y])
     xy = np.vstack([[xmin, ymin], xy, [xmax, ymin], [xmin, ymin]])
@@ -46,6 +47,7 @@ def ma_chart(data, trades, ticker, interval, period):
     im.set_clip_path(clip_path)
 
     ax.autoscale(True)
+
     # plt.xlim(data.index[0], data.index[-1])
     # plt.ylim(data['Close'].min(), data['Close'].max())
 
@@ -84,6 +86,7 @@ def ma_chart(data, trades, ticker, interval, period):
     plt.ylabel('Price')
     plt.legend()
     plt.grid(True)
+    plt.locator_params("y", nbins=15)
 
     # Adjust the positions of annotations to avoid overlap
     adjust_text(texts, arrowprops=dict(arrowstyle='->', color='white'), zorder=5, y=data['Close'],
@@ -104,6 +107,7 @@ def equity_curve(portfolio_values, title='Equity Curve'):
     plt.ylabel('Portfolio Value')
     plt.legend()
     plt.grid(True)
+    plt.locator_params("y", nbins=15)
     plt.show()
 
 
